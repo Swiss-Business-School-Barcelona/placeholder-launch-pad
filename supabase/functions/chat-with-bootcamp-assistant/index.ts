@@ -117,6 +117,9 @@ serve(async (req) => {
         } else {
           console.log('Application data stored successfully:', insertData);
         }
+        
+        // Remove the JSON from the bot message before sending to user
+        botMessage = botMessage.replace(jsonMatch[0], '').trim();
       }
     } catch (jsonError) {
       console.log('No JSON data detected or parsing failed:', jsonError);
