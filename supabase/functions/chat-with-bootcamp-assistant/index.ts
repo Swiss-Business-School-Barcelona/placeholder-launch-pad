@@ -1,7 +1,11 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const openAIApiKey = Deno.env.get('OPENAI');
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -83,6 +87,40 @@ serve(async (req) => {
     }
 
     const botMessage = data.choices[0].message.content;
+
+    // Check if the message contains JSON data (indicating completion of questionnaire)
+    try {
+      const jsonMatch = botMessage.match(/\{[\s\S]*"age"[\s\S]*"referral_source"[\s\S]*\}/);
+      if (jsonMatch) {
+        const jsonData = JSON.parse(jsonMatch[0]);
+        console.log('Detected JSON data:', jsonData);
+        
+        // Store the application data in Supabase
+        const { data: insertData, error: insertError } = await supabase
+          .from('bootcamp_applications')
+          .insert([{
+            age: jsonData.age,
+            email: jsonData.email,
+            linkedin: jsonData.linkedin,
+            about: jsonData.about,
+            motivation: jsonData.motivation,
+            goal: jsonData.goal,
+            app_experience: jsonData.app_experience,
+            ai_experience: jsonData.ai_experience,
+            preferred_time: jsonData.preferred_time,
+            unavailable_days: jsonData.unavailable_days,
+            referral_source: jsonData.referral_source
+          }]);
+
+        if (insertError) {
+          console.error('Error storing application data:', insertError);
+        } else {
+          console.log('Application data stored successfully:', insertData);
+        }
+      }
+    } catch (jsonError) {
+      console.log('No JSON data detected or parsing failed:', jsonError);
+    }
 
     return new Response(JSON.stringify({ message: botMessage }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bootcamp_applications: {
+        Row: {
+          about: string | null
+          age: string | null
+          ai_experience: string | null
+          app_experience: string | null
+          created_at: string
+          email: string | null
+          goal: string | null
+          id: string
+          linkedin: string | null
+          motivation: string | null
+          preferred_time: string | null
+          referral_source: string | null
+          unavailable_days: string | null
+          updated_at: string
+        }
+        Insert: {
+          about?: string | null
+          age?: string | null
+          ai_experience?: string | null
+          app_experience?: string | null
+          created_at?: string
+          email?: string | null
+          goal?: string | null
+          id?: string
+          linkedin?: string | null
+          motivation?: string | null
+          preferred_time?: string | null
+          referral_source?: string | null
+          unavailable_days?: string | null
+          updated_at?: string
+        }
+        Update: {
+          about?: string | null
+          age?: string | null
+          ai_experience?: string | null
+          app_experience?: string | null
+          created_at?: string
+          email?: string | null
+          goal?: string | null
+          id?: string
+          linkedin?: string | null
+          motivation?: string | null
+          preferred_time?: string | null
+          referral_source?: string | null
+          unavailable_days?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
