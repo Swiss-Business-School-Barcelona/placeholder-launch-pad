@@ -20,15 +20,6 @@ Ask the following questions in order, only proceeding after the user responds:
 
 1. What's your age?
 2. What's your email address?
-3. Can you share your LinkedIn profile? (optional)
-4. Tell me a bit about yourself. (background, interests, what you're doing now)
-5. Why do you want to join this bootcamp?
-6. What do you want to achieve by the end of the bootcamp?
-7. How much experience do you have with building apps? (None / Beginner / Intermediate / Advanced)
-8. How much experience do you have with AI tools? (None / Beginner / Intermediate / Advanced)
-9. What time of day works best for you? (Morning / Afternoon / Evening)
-10. Are there any days you cannot attend sessions?
-11. How did you hear about the bootcamp?
 
 After collecting all the answers, thank the user warmly and say the following message:
 
