@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: number;
@@ -10,15 +11,8 @@ interface Message {
   timestamp: Date;
 }
 
-const questions = [
-  "What's your favorite hobby and why do you enjoy it?",
-  "If you could travel anywhere in the world, where would you go?",
-  "What's one skill you'd love to learn in the next year?"
-];
-
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
@@ -41,44 +35,57 @@ const Index = () => {
     }, delay);
   };
 
-  const startConversation = () => {
+  const startConversation = async () => {
     setConversationStarted(true);
-    simulateTyping(() => {
-      addMessage("Hello! I'm excited to get to know you better. I have a few questions for you.", true);
-      setTimeout(() => {
-        simulateTyping(() => {
-          addMessage(questions[0], true);
-        }, 1000);
-      }, 1000);
+    
+    // Start the conversation with the bootcamp assistant
+    simulateTyping(async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+          body: { messages: [] }
+        });
+        
+        if (error) throw error;
+        
+        addMessage(data.message, true);
+      } catch (error) {
+        console.error('Error starting conversation:', error);
+        addMessage("Hi! I'm here to help you with your bootcamp application. What's your age?", true);
+      }
     });
   };
 
-  const handleUserResponse = () => {
+  const handleUserResponse = async () => {
     if (!userInput.trim()) return;
 
     // Add user response
     addMessage(userInput, false);
+    const userMessage = userInput;
     setUserInput("");
 
-    // Move to next question or end conversation
-    if (currentQuestion < questions.length - 1) {
-      const nextQuestionIndex = currentQuestion + 1;
-      setCurrentQuestion(nextQuestionIndex);
-      
-      simulateTyping(() => {
-        addMessage("Thank you for sharing! Here's my next question:", true);
-        setTimeout(() => {
-          simulateTyping(() => {
-            addMessage(questions[nextQuestionIndex], true);
-          }, 1000);
-        }, 1000);
-      });
-    } else {
-      // End conversation
-      simulateTyping(() => {
-        addMessage("Thank you so much for answering all my questions! It was great getting to know you better. 😊", true);
-      });
-    }
+    // Prepare conversation history for OpenAI
+    const conversationHistory = messages.map(msg => ({
+      role: msg.isBot ? 'assistant' : 'user',
+      content: msg.text
+    }));
+    
+    // Add the current user message
+    conversationHistory.push({ role: 'user', content: userMessage });
+
+    simulateTyping(async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+          body: { messages: conversationHistory }
+        });
+        
+        if (error) throw error;
+        
+        addMessage(data.message, true);
+      } catch (error) {
+        console.error('Error getting AI response:', error);
+        addMessage("I'm sorry, there was an error. Could you please repeat that?", true);
+      }
+    });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -145,7 +152,7 @@ const Index = () => {
               </div>
 
               {/* Input Area */}
-              {currentQuestion < questions.length && !isTyping && (
+              {!isTyping && (
                 <div className="flex space-x-2">
                   <Input
                     value={userInput}
