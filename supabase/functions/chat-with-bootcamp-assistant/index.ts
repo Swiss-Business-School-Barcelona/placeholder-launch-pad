@@ -30,13 +30,15 @@ Ask the following questions in order, only proceeding after the user responds:
 10. Are there any days you cannot attend sessions?
 11. How did you hear about the bootcamp?
 
-After collecting all the answers, thank the user warmly and say the following message:
+After collecting all the answers, respond ONLY with this exact message:
 
 "Thanks so much! Someone from our team will be in touch with next steps soon.
 
 By the way — both this app and our landing page were built using the same AI tools you'll learn during the bootcamp. Pretty cool, right? 😄"
 
-Finally, return all the collected information as structured JSON using this format:
+IMPORTANT: Do not provide any summary of the user's responses. Do not show any JSON data to the user. Simply end with the thank you message above.
+
+However, for processing purposes, after the thank you message, include the collected information as structured JSON in this exact format (this will be parsed and stored but not shown to the user):
 
 {
 "age": "...",
@@ -86,7 +88,7 @@ serve(async (req) => {
       throw new Error(data.error?.message || 'Failed to get response from OpenAI');
     }
 
-    const botMessage = data.choices[0].message.content;
+    let botMessage = data.choices[0].message.content;
 
     // Check if the message contains JSON data (indicating completion of questionnaire)
     try {
