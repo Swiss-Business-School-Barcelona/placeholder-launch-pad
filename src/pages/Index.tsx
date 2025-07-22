@@ -64,6 +64,9 @@ const Index = () => {
     const userMessage = userInput;
     setUserInput("");
 
+    // Show typing indicator immediately
+    setIsTyping(true);
+
     // Prepare conversation history for OpenAI
     const conversationHistory = messages.map(msg => ({
       role: msg.isBot ? 'assistant' : 'user',
@@ -73,20 +76,21 @@ const Index = () => {
     // Add the current user message
     conversationHistory.push({ role: 'user', content: userMessage });
 
-    simulateTyping(async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
-          body: { messages: conversationHistory }
-        });
-        
-        if (error) throw error;
-        
-        addMessage(data.message, true);
-      } catch (error) {
-        console.error('Error getting AI response:', error);
-        addMessage("I'm sorry, there was an error. Could you please repeat that?", true);
-      }
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+        body: { messages: conversationHistory }
+      });
+      
+      if (error) throw error;
+      
+      // Hide typing indicator and show response
+      setIsTyping(false);
+      addMessage(data.message, true);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      setIsTyping(false);
+      addMessage("I'm sorry, there was an error. Could you please repeat that?", true);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
