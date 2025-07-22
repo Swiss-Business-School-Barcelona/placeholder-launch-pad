@@ -9,22 +9,54 @@ interface Message {
   text: string;
   isBot: boolean;
   timestamp: Date;
+  showButton?: boolean;
+  buttonUrl?: string;
 }
 
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [conversationStarted, setConversationStarted] = useState(false);
+  const [showBootcampButton, setShowBootcampButton] = useState(false);
+  const [bootcampButtonUrl, setBootcampButtonUrl] = useState("");
 
-  const addMessage = (text: string, isBot: boolean) => {
+  // Auto-start conversation when component mounts
+  useEffect(() => {
+    const initializeConversation = async () => {
+      simulateTyping(async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+            body: { messages: [] }
+          });
+          
+          if (error) throw error;
+          
+          addMessage(data.message, true, data.showButton, data.buttonUrl);
+        } catch (error) {
+          console.error('Error starting conversation:', error);
+          addMessage("Hi! I'm here to help you with your bootcamp application. What's your age?", true);
+        }
+      });
+    };
+
+    initializeConversation();
+  }, []);
+
+  const addMessage = (text: string, isBot: boolean, showButton?: boolean, buttonUrl?: string) => {
     const newMessage: Message = {
       id: Date.now(),
       text,
       isBot,
-      timestamp: new Date()
+      timestamp: new Date(),
+      showButton,
+      buttonUrl
     };
     setMessages(prev => [...prev, newMessage]);
+    
+    if (showButton && buttonUrl) {
+      setShowBootcampButton(true);
+      setBootcampButtonUrl(buttonUrl);
+    }
   };
 
   const simulateTyping = (callback: () => void, delay = 1500) => {
@@ -35,26 +67,6 @@ const Index = () => {
     }, delay);
   };
 
-  const startConversation = async () => {
-    setConversationStarted(true);
-    
-    // Start the conversation with the bootcamp assistant
-    simulateTyping(async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
-          body: { messages: [] }
-        });
-        
-        if (error) throw error;
-        
-        addMessage(data.message, true);
-      } catch (error) {
-        console.error('Error starting conversation:', error);
-        addMessage("Hi! I'm here to help you with your bootcamp application. What's your age?", true);
-      }
-    });
-  };
-
   const handleUserResponse = async () => {
     if (!userInput.trim()) return;
 
@@ -62,6 +74,9 @@ const Index = () => {
     addMessage(userInput, false);
     const userMessage = userInput;
     setUserInput("");
+
+    // Show typing indicator immediately
+    setIsTyping(true);
 
     // Prepare conversation history for OpenAI
     const conversationHistory = messages.map(msg => ({
@@ -72,20 +87,21 @@ const Index = () => {
     // Add the current user message
     conversationHistory.push({ role: 'user', content: userMessage });
 
-    simulateTyping(async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
-          body: { messages: conversationHistory }
-        });
-        
-        if (error) throw error;
-        
-        addMessage(data.message, true);
-      } catch (error) {
-        console.error('Error getting AI response:', error);
-        addMessage("I'm sorry, there was an error. Could you please repeat that?", true);
-      }
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+        body: { messages: conversationHistory }
+      });
+      
+      if (error) throw error;
+      
+      // Hide typing indicator and show response
+      setIsTyping(false);
+      addMessage(data.message, true, data.showButton, data.buttonUrl);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      setIsTyping(false);
+      addMessage("I'm sorry, there was an error. Could you please repeat that?", true);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -97,78 +113,70 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-background flex items-center justify-center px-4">
       <div className="w-full max-w-2xl mx-auto">
-        {!conversationStarted ? (
-          <div className="text-center space-y-6">
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tight bg-gradient-primary bg-clip-text text-transparent">
-              Chat with Me
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground font-light">
-              Let's have a friendly conversation!
-            </p>
-            <div className="pt-8">
-              <Button 
-                variant="hero" 
-                className="transform transition-transform hover:scale-105"
-                onClick={startConversation}
-              >
-                Start Chat
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <Card className="h-[600px] flex flex-col">
-            <CardContent className="flex-1 flex flex-col p-6">
-              {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto space-y-4 mb-4">
-                {messages.map((message) => (
+        <Card className="h-[600px] flex flex-col">
+          <CardContent className="flex-1 flex flex-col p-6">
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+                >
                   <div
-                    key={message.id}
-                    className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                      message.isBot
+                        ? 'bg-secondary text-secondary-foreground'
+                        : 'bg-primary text-primary-foreground'
+                    }`}
                   >
-                    <div
-                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                        message.isBot
-                          ? 'bg-secondary text-secondary-foreground'
-                          : 'bg-primary text-primary-foreground'
-                      }`}
-                    >
-                      <p className="text-sm">{message.text}</p>
+                    <p className="text-sm">{message.text}</p>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Typing indicator */}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-secondary text-secondary-foreground rounded-lg px-4 py-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
-                ))}
-                
-                {/* Typing indicator */}
-                {isTyping && (
-                  <div className="flex justify-start">
-                    <div className="bg-secondary text-secondary-foreground rounded-lg px-4 py-2">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Input Area */}
-              {!isTyping && (
-                <div className="flex space-x-2">
-                  <Input
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type your answer here..."
-                    className="flex-1"
-                  />
-                  <Button onClick={handleUserResponse} disabled={!userInput.trim()}>
-                    Send
-                  </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        )}
+            </div>
+
+            {/* Bootcamp Button */}
+            {showBootcampButton && (
+              <div className="flex justify-center mb-4">
+                <Button 
+                  onClick={() => window.open(bootcampButtonUrl, '_blank')}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                  Visit Bootcamp Page
+                </Button>
+              </div>
+            )}
+
+            {/* Input Area */}
+            {!isTyping && !showBootcampButton && (
+              <div className="flex space-x-2">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your answer here..."
+                  className="flex-1"
+                />
+                <Button onClick={handleUserResponse} disabled={!userInput.trim()}>
+                  Send
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

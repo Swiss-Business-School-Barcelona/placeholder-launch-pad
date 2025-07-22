@@ -20,42 +20,27 @@ Ask the following questions in order, only proceeding after the user responds:
 
 1. What's your age?
 2. What's your email address?
-3. Can you share your LinkedIn profile? (optional)
-4. Tell me a bit about yourself. (background, interests, what you're doing now)
-5. Why do you want to join this bootcamp?
-6. What do you want to achieve by the end of the bootcamp?
-7. How much experience do you have with building apps? (None / Beginner / Intermediate / Advanced)
-8. How much experience do you have with AI tools? (None / Beginner / Intermediate / Advanced)
-9. What time of day works best for you? (Morning / Afternoon / Evening)
-10. Are there any days you cannot attend sessions?
-11. How did you hear about the bootcamp?
 
-After collecting all the answers, thank the user warmly and say the following message:
+After collecting both answers, respond ONLY with this exact message:
 
 "Thanks so much! Someone from our team will be in touch with next steps soon.
 
-By the way — both this app and our landing page were built using the same AI tools you'll learn during the bootcamp. Pretty cool, right? 😄"
+By the way — both this app and our landing page were built using the same AI tools you'll learn during the bootcamp. Pretty cool, right? 😄
 
-Finally, return all the collected information as structured JSON using this format:
+[SHOW_BUTTON:https://www.buildnocode.dev]"
+
+IMPORTANT: Do not provide any summary of the user's responses. Do not show any JSON data to the user. Simply end with the thank you message above with the button marker.
+
+However, for processing purposes, after the thank you message, include the collected information as structured JSON in this exact format (this will be parsed and stored but not shown to the user):
 
 {
-"age": "...",
-"email": "...",
-"linkedin": "...",
-"about": "...",
-"motivation": "...",
-"goal": "...",
-"app_experience": "...",
-"ai_experience": "...",
-"preferred_time": "...",
-"unavailable_days": "...",
-"referral_source": "..."
+  "age": "...",
+  "email": "..."
 }
 
 If the user refuses to answer something or skips a question, just enter \`null\` for that field in the final output. Keep the conversation friendly throughout.`;
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -86,30 +71,29 @@ serve(async (req) => {
       throw new Error(data.error?.message || 'Failed to get response from OpenAI');
     }
 
-    const botMessage = data.choices[0].message.content;
+    let botMessage = data.choices[0].message.content;
+    let showButton = false;
+    let buttonUrl = '';
 
-    // Check if the message contains JSON data (indicating completion of questionnaire)
+    // Check for button marker
+    const buttonMatch = botMessage.match(/\[SHOW_BUTTON:(https?:\/\/[^\]]+)\]/);
+    if (buttonMatch) {
+      showButton = true;
+      buttonUrl = buttonMatch[1];
+      botMessage = botMessage.replace(buttonMatch[0], '').trim();
+    }
+
     try {
-      const jsonMatch = botMessage.match(/\{[\s\S]*"age"[\s\S]*"referral_source"[\s\S]*\}/);
+      const jsonMatch = botMessage.match(/\{[\s\S]*"age"[\s\S]*"email"[\s\S]*\}/);
       if (jsonMatch) {
         const jsonData = JSON.parse(jsonMatch[0]);
         console.log('Detected JSON data:', jsonData);
         
-        // Store the application data in Supabase
         const { data: insertData, error: insertError } = await supabase
           .from('bootcamp_applications')
           .insert([{
             age: jsonData.age,
-            email: jsonData.email,
-            linkedin: jsonData.linkedin,
-            about: jsonData.about,
-            motivation: jsonData.motivation,
-            goal: jsonData.goal,
-            app_experience: jsonData.app_experience,
-            ai_experience: jsonData.ai_experience,
-            preferred_time: jsonData.preferred_time,
-            unavailable_days: jsonData.unavailable_days,
-            referral_source: jsonData.referral_source
+            email: jsonData.email
           }]);
 
         if (insertError) {
@@ -117,15 +101,18 @@ serve(async (req) => {
         } else {
           console.log('Application data stored successfully:', insertData);
         }
-        
-        // Remove the JSON from the bot message before sending to user
+
         botMessage = botMessage.replace(jsonMatch[0], '').trim();
       }
     } catch (jsonError) {
       console.log('No JSON data detected or parsing failed:', jsonError);
     }
 
-    return new Response(JSON.stringify({ message: botMessage }), {
+    return new Response(JSON.stringify({ 
+      message: botMessage,
+      showButton,
+      buttonUrl: showButton ? buttonUrl : undefined
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
