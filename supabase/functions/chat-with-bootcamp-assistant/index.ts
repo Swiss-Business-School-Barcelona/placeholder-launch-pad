@@ -25,9 +25,11 @@ After collecting both answers, respond ONLY with this exact message:
 
 "Thanks so much! Someone from our team will be in touch with next steps soon.
 
-By the way — both this app and our landing page were built using the same AI tools you'll learn during the bootcamp. Pretty cool, right? 😄"
+By the way — both this app and our landing page were built using the same AI tools you'll learn during the bootcamp. Pretty cool, right? 😄
 
-IMPORTANT: Do not provide any summary of the user's responses. Do not show any JSON data to the user. Simply end with the thank you message above.
+[SHOW_BUTTON:https://www.buildnocode.dev]"
+
+IMPORTANT: Do not provide any summary of the user's responses. Do not show any JSON data to the user. Simply end with the thank you message above with the button marker.
 
 However, for processing purposes, after the thank you message, include the collected information as structured JSON in this exact format (this will be parsed and stored but not shown to the user):
 
@@ -70,6 +72,16 @@ serve(async (req) => {
     }
 
     let botMessage = data.choices[0].message.content;
+    let showButton = false;
+    let buttonUrl = '';
+
+    // Check for button marker
+    const buttonMatch = botMessage.match(/\[SHOW_BUTTON:(https?:\/\/[^\]]+)\]/);
+    if (buttonMatch) {
+      showButton = true;
+      buttonUrl = buttonMatch[1];
+      botMessage = botMessage.replace(buttonMatch[0], '').trim();
+    }
 
     try {
       const jsonMatch = botMessage.match(/\{[\s\S]*"age"[\s\S]*"email"[\s\S]*\}/);
@@ -96,7 +108,11 @@ serve(async (req) => {
       console.log('No JSON data detected or parsing failed:', jsonError);
     }
 
-    return new Response(JSON.stringify({ message: botMessage }), {
+    return new Response(JSON.stringify({ 
+      message: botMessage,
+      showButton,
+      buttonUrl: showButton ? buttonUrl : undefined
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {

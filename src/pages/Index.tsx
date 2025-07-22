@@ -9,12 +9,16 @@ interface Message {
   text: string;
   isBot: boolean;
   timestamp: Date;
+  showButton?: boolean;
+  buttonUrl?: string;
 }
 
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [showBootcampButton, setShowBootcampButton] = useState(false);
+  const [bootcampButtonUrl, setBootcampButtonUrl] = useState("");
 
   // Auto-start conversation when component mounts
   useEffect(() => {
@@ -27,7 +31,7 @@ const Index = () => {
           
           if (error) throw error;
           
-          addMessage(data.message, true);
+          addMessage(data.message, true, data.showButton, data.buttonUrl);
         } catch (error) {
           console.error('Error starting conversation:', error);
           addMessage("Hi! I'm here to help you with your bootcamp application. What's your age?", true);
@@ -38,14 +42,21 @@ const Index = () => {
     initializeConversation();
   }, []);
 
-  const addMessage = (text: string, isBot: boolean) => {
+  const addMessage = (text: string, isBot: boolean, showButton?: boolean, buttonUrl?: string) => {
     const newMessage: Message = {
       id: Date.now(),
       text,
       isBot,
-      timestamp: new Date()
+      timestamp: new Date(),
+      showButton,
+      buttonUrl
     };
     setMessages(prev => [...prev, newMessage]);
+    
+    if (showButton && buttonUrl) {
+      setShowBootcampButton(true);
+      setBootcampButtonUrl(buttonUrl);
+    }
   };
 
   const simulateTyping = (callback: () => void, delay = 1500) => {
@@ -85,7 +96,7 @@ const Index = () => {
       
       // Hide typing indicator and show response
       setIsTyping(false);
-      addMessage(data.message, true);
+      addMessage(data.message, true, data.showButton, data.buttonUrl);
     } catch (error) {
       console.error('Error getting AI response:', error);
       setIsTyping(false);
@@ -137,8 +148,20 @@ const Index = () => {
               )}
             </div>
 
+            {/* Bootcamp Button */}
+            {showBootcampButton && (
+              <div className="flex justify-center mb-4">
+                <Button 
+                  onClick={() => window.open(bootcampButtonUrl, '_blank')}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                  Visit Bootcamp Page
+                </Button>
+              </div>
+            )}
+
             {/* Input Area */}
-            {!isTyping && (
+            {!isTyping && !showBootcampButton && (
               <div className="flex space-x-2">
                 <Input
                   value={userInput}
