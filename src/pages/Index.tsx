@@ -40,7 +40,7 @@ const Index = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Additional effect to ensure initial scroll works
+    // Additional effect to ensure initial scroll works
   useEffect(() => {
     if (messages.length === 1) {
       // For the first message, try multiple scroll attempts
@@ -150,10 +150,10 @@ const Index = () => {
           <CardContent className="p-3 md:p-6 h-full flex flex-col min-h-0 pt-safe-top">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0 py-2 flex flex-col justify-end"
+              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0 py-2"
               style={{ scrollBehavior: 'smooth' }}
             >
-              <div className="flex flex-col space-y-3 md:space-y-4">
+              <div className="flex flex-col space-y-3 md:space-y-4 justify-end min-h-full">
                 {messages.map((message) => (
                   <div
                     key={message.id}
