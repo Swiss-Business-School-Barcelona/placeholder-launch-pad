@@ -132,17 +132,17 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background flex items-center justify-center px-4">
-      <div className="w-full max-w-2xl mx-auto">
-        <Card className="h-[600px]">
-          <CardContent className="p-6 h-full flex flex-col">
+    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-4 md:px-4 px-0">
+      <div className="w-full max-w-2xl mx-auto h-screen md:h-auto">
+        <Card className="h-full md:h-[600px] md:rounded-lg rounded-none border-0 md:border">
+          <CardContent className="p-3 md:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-4 pr-2 flex-1"
+              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1"
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)',
-                maxHeight: 'calc(600px - 140px)' // Card height minus padding and input area
+                maxHeight: 'calc(100vh - 120px)', // Full height minus padding and input area on mobile
               }}
             >
               {messages.map((message) => (
@@ -151,13 +151,13 @@ const Index = () => {
                   className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                    className={`max-w-[85%] md:max-w-[80%] rounded-lg px-3 md:px-4 py-2 ${
                       message.isBot
                         ? 'bg-secondary text-secondary-foreground'
                         : 'bg-primary text-primary-foreground'
                     }`}
                   >
-                    <p className="text-sm">{message.text}</p>
+                    <p className="text-sm leading-relaxed">{message.text}</p>
                   </div>
                 </div>
               ))}
@@ -181,10 +181,10 @@ const Index = () => {
 
             {/* Bootcamp Button */}
             {showBootcampButton && (
-              <div className="flex justify-center my-4">
+              <div className="flex justify-center my-3 md:my-4">
                 <Button 
                   onClick={() => window.open(bootcampButtonUrl, '_blank')}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-4 md:px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg w-full md:w-auto max-w-xs"
                 >
                   Visit Bootcamp Page
                 </Button>
@@ -193,16 +193,20 @@ const Index = () => {
 
             {/* Input Area */}
             {!isTyping && !showBootcampButton && (
-              <div className="flex space-x-2 mt-4">
+              <div className="flex space-x-2 mt-3 md:mt-4 pb-safe">
                 <Input
                   ref={inputRef}
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your answer here..."
-                  className="flex-1"
+                  className="flex-1 h-11 md:h-10"
                 />
-                <Button onClick={handleUserResponse} disabled={!userInput.trim()}>
+                <Button 
+                  onClick={handleUserResponse} 
+                  disabled={!userInput.trim()}
+                  className="h-11 md:h-10 px-4 md:px-6"
+                >
                   Send
                 </Button>
               </div>
