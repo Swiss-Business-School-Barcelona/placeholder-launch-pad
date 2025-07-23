@@ -37,17 +37,24 @@ const Index = () => {
   // Scroll effect with special handling for first message
   useEffect(() => {
     if (messages.length === 1) {
-      // For the first message, add extra delay to ensure proper positioning
-      setTimeout(() => {
-        scrollToBottom();
-      }, 300);
-    } else {
-      // For subsequent messages, scroll immediately
+      // For the first message, don't scroll - let it appear at the top naturally
+      return;
+    } else if (messages.length > 1) {
+      // Only scroll when there are multiple messages
       setTimeout(() => {
         scrollToBottom();
       }, 100);
     }
-  }, [messages, isTyping]);
+  }, [messages]);
+
+  // Separate effect for typing indicator
+  useEffect(() => {
+    if (isTyping && messages.length > 1) {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    }
+  }, [isTyping]);
 
   // Auto-start conversation when component mounts
   useEffect(() => {
@@ -149,44 +156,46 @@ const Index = () => {
           <CardContent className="p-4 md:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-4 pr-2 flex-1 mb-4"
+              className="overflow-y-auto pr-2 flex-1 mb-4 flex flex-col"
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)'
               }}
             >
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-                >
+              <div className={`space-y-4 ${messages.length === 1 ? 'flex-grow-0' : 'flex-grow min-h-full flex flex-col justify-end'}`}>
+                {messages.map((message) => (
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      message.isBot
-                        ? 'bg-secondary text-secondary-foreground'
-                        : 'bg-primary text-primary-foreground'
-                    }`}
+                    key={message.id}
+                    className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
                   >
-                    <p className="text-sm">{message.text}</p>
-                  </div>
-                </div>
-              ))}
-              
-              {/* Typing indicator */}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-secondary text-secondary-foreground rounded-lg px-4 py-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        message.isBot
+                          ? 'bg-secondary text-secondary-foreground'
+                          : 'bg-primary text-primary-foreground'
+                      }`}
+                    >
+                      <p className="text-sm">{message.text}</p>
                     </div>
                   </div>
-                </div>
-              )}
-              
-              {/* Auto-scroll target */}
-              <div ref={messagesEndRef} />
+                ))}
+                
+                {/* Typing indicator */}
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-secondary text-secondary-foreground rounded-lg px-4 py-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Auto-scroll target */}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
 
             {/* Bootcamp Button */}
