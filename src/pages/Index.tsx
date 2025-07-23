@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
@@ -19,6 +19,16 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [showBootcampButton, setShowBootcampButton] = useState(false);
   const [bootcampButtonUrl, setBootcampButtonUrl] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
 
   // Auto-start conversation when component mounts
   useEffect(() => {
@@ -113,10 +123,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-background flex items-center justify-center px-4">
       <div className="w-full max-w-2xl mx-auto">
-        <Card className="h-[600px] flex flex-col">
-          <CardContent className="flex-1 flex flex-col p-6">
+        <Card className="h-[600px]">
+          <CardContent className="p-6 h-full flex flex-col">
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+            <div 
+              className="overflow-y-auto space-y-4 pr-2 flex-1"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)',
+                maxHeight: 'calc(600px - 140px)' // Card height minus padding and input area
+              }}
+            >
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -146,11 +163,14 @@ const Index = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Auto-scroll target */}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Bootcamp Button */}
             {showBootcampButton && (
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center my-4">
                 <Button 
                   onClick={() => window.open(bootcampButtonUrl, '_blank')}
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
@@ -162,7 +182,7 @@ const Index = () => {
 
             {/* Input Area */}
             {!isTyping && !showBootcampButton && (
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 mt-4">
                 <Input
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
