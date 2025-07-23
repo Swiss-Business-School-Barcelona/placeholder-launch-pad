@@ -147,9 +147,4 @@ All colors MUST be HSL.
   .dark ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground) / 0.6);
   }
-
-  /* Mobile safe area support */
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
 }
