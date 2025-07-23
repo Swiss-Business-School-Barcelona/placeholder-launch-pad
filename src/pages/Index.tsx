@@ -24,20 +24,31 @@ const Index = () => {
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 50); // Small delay to ensure DOM is updated
   };
 
   // Focus input field
   const focusInput = () => {
     setTimeout(() => {
       inputRef.current?.focus();
-    }, 100);
+    }, 100); // Small delay to ensure the input is rendered
   };
 
-  // Scroll to bottom whenever messages or typing status changes
   useEffect(() => {
-    setTimeout(scrollToBottom, 100);
+    scrollToBottom();
   }, [messages, isTyping]);
+
+    // Additional effect to ensure initial scroll works
+  useEffect(() => {
+    if (messages.length === 1) {
+      // For the first message, try multiple scroll attempts
+      setTimeout(() => scrollToBottom(), 100);
+      setTimeout(() => scrollToBottom(), 300);
+      setTimeout(() => scrollToBottom(), 500);
+    }
+  }, [messages.length]);
 
   // Auto-start conversation when component mounts
   useEffect(() => {
@@ -133,22 +144,23 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-background">
-      {/* Desktop: centered card, Mobile: full screen */}
-      <div className="h-full max-w-2xl mx-auto md:flex md:items-center md:justify-center md:p-4">
-        <Card className="h-full w-full md:h-[600px] md:rounded-lg rounded-none border-0 md:border shadow-none md:shadow-sm">
-          <CardContent className="h-full p-4 md:p-6 flex flex-col">
-            
-            {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto mb-4">
-              <div className="space-y-4">
+    <div className="h-screen bg-gradient-background md:flex md:items-center md:justify-center md:p-4">
+      <div className="w-full max-w-2xl mx-auto h-full md:h-[600px] flex flex-col">
+        <Card className="h-full md:rounded-lg rounded-none border-0 md:border shadow-none md:shadow-sm flex flex-col">
+          <CardContent className="p-3 md:p-6 h-full flex flex-col min-h-0 pt-safe-top">
+            {/* Chat Messages */}
+            <div 
+              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0 py-2"
+              style={{ scrollBehavior: 'smooth' }}
+            >
+              <div className="flex flex-col space-y-3 md:space-y-4 justify-end min-h-full">
                 {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                      className={`max-w-[85%] md:max-w-[80%] rounded-lg px-3 md:px-4 py-2 ${
                         message.isBot
                           ? 'bg-secondary text-secondary-foreground'
                           : 'bg-primary text-primary-foreground'
@@ -172,44 +184,43 @@ const Index = () => {
                   </div>
                 )}
                 
-                {/* Scroll anchor */}
+                {/* Auto-scroll target */}
                 <div ref={messagesEndRef} />
               </div>
             </div>
 
             {/* Bootcamp Button */}
             {showBootcampButton && (
-              <div className="mb-4">
+              <div className="flex justify-center my-3 md:my-4">
                 <Button 
                   onClick={() => window.open(bootcampButtonUrl, '_blank')}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-4 md:px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg w-full md:w-auto max-w-xs"
                 >
                   Visit Bootcamp Page
                 </Button>
               </div>
             )}
 
-            {/* Input Area - Fixed at bottom */}
+            {/* Input Area */}
             {!isTyping && !showBootcampButton && (
-              <div className="flex space-x-2 pt-2 border-t border-border/20">
+              <div className="flex space-x-2 mt-3 md:mt-4 pt-2 border-t border-border/20 md:border-t-0 md:pt-0 pb-safe">
                 <Input
                   ref={inputRef}
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your answer here..."
-                  className="flex-1 h-12 text-base"
+                  className="flex-1 h-12 md:h-10 text-base md:text-sm"
                 />
                 <Button 
                   onClick={handleUserResponse} 
                   disabled={!userInput.trim()}
-                  className="h-12 px-6"
+                  className="h-12 md:h-10 px-6 md:px-4 text-base md:text-sm"
                 >
                   Send
                 </Button>
               </div>
             )}
-            
           </CardContent>
         </Card>
       </div>
