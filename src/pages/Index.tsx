@@ -132,18 +132,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-4 md:px-4 px-0">
-      <div className="w-full max-w-2xl mx-auto h-screen md:h-auto">
-        <Card className="h-full md:h-[600px] md:rounded-lg rounded-none border-0 md:border">
+    <div className="h-screen bg-gradient-background flex flex-col md:items-center md:justify-center md:p-4">
+      <div className="w-full max-w-2xl mx-auto h-full md:h-[600px] flex flex-col">
+        <Card className="h-full md:rounded-lg rounded-none border-0 md:border shadow-none md:shadow-sm">
           <CardContent className="p-3 md:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)',
-                maxHeight: 'calc(100vh - 120px)', // Full height minus padding and input area on mobile
-              }}
+              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0"
             >
               {messages.map((message) => (
                 <div
@@ -193,19 +188,19 @@ const Index = () => {
 
             {/* Input Area */}
             {!isTyping && !showBootcampButton && (
-              <div className="flex space-x-2 mt-3 md:mt-4 pb-safe">
+              <div className="flex space-x-2 mt-3 md:mt-4 pt-2 border-t border-border/20 md:border-t-0 md:pt-0">
                 <Input
                   ref={inputRef}
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your answer here..."
-                  className="flex-1 h-11 md:h-10"
+                  className="flex-1 h-12 md:h-10 text-base md:text-sm"
                 />
                 <Button 
                   onClick={handleUserResponse} 
                   disabled={!userInput.trim()}
-                  className="h-11 md:h-10 px-4 md:px-6"
+                  className="h-12 md:h-10 px-6 md:px-4 text-base md:text-sm"
                 >
                   Send
                 </Button>
