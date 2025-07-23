@@ -20,10 +20,18 @@ const Index = () => {
   const [showBootcampButton, setShowBootcampButton] = useState(false);
   const [bootcampButtonUrl, setBootcampButtonUrl] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Focus input field
+  const focusInput = () => {
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100); // Small delay to ensure the input is rendered
   };
 
   useEffect(() => {
@@ -66,6 +74,9 @@ const Index = () => {
     if (showButton && buttonUrl) {
       setShowBootcampButton(true);
       setBootcampButtonUrl(buttonUrl);
+    } else if (isBot) {
+      // Focus input when bot asks a new question (but not when showing button)
+      focusInput();
     }
   };
 
@@ -184,6 +195,7 @@ const Index = () => {
             {!isTyping && !showBootcampButton && (
               <div className="flex space-x-2 mt-4">
                 <Input
+                  ref={inputRef}
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
