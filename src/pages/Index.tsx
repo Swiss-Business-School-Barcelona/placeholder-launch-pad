@@ -31,22 +31,11 @@ const Index = () => {
   const focusInput = () => {
     setTimeout(() => {
       inputRef.current?.focus();
-    }, 100);
+    }, 100); // Small delay to ensure the input is rendered
   };
 
-  // Scroll effect with special handling for first message
   useEffect(() => {
-    if (messages.length === 1) {
-      // For the first message, add extra delay to ensure proper positioning
-      setTimeout(() => {
-        scrollToBottom();
-      }, 300);
-    } else {
-      // For subsequent messages, scroll immediately
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-    }
+    scrollToBottom();
   }, [messages, isTyping]);
 
   // Auto-start conversation when component mounts
