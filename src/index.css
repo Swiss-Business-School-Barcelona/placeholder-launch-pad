@@ -153,6 +153,10 @@ All colors MUST be HSL.
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  .pt-safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
   /* Mobile viewport fix */
   @media (max-width: 768px) {
     html, body {
@@ -160,11 +164,17 @@ All colors MUST be HSL.
       height: 100dvh; /* Dynamic viewport height for mobile */
       overflow: hidden;
       touch-action: manipulation;
+      position: fixed;
+      width: 100%;
     }
     
     #root {
       height: 100vh;
       height: 100dvh;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
     }
 
     /* Prevent zoom on input focus */
