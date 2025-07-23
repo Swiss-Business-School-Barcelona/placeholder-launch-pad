@@ -152,24 +152,4 @@ All colors MUST be HSL.
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
-
-  /* Mobile viewport fix */
-  @media (max-width: 768px) {
-    html, body {
-      height: 100vh;
-      height: 100dvh; /* Dynamic viewport height for mobile */
-      overflow: hidden;
-      touch-action: manipulation;
-    }
-    
-    #root {
-      height: 100vh;
-      height: 100dvh;
-    }
-
-    /* Prevent zoom on input focus */
-    input, textarea, select {
-      font-size: 16px !important;
-    }
-  }
 }
