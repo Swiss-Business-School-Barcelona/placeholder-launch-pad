@@ -24,9 +24,7 @@ const Index = () => {
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 50); // Small delay to ensure DOM is updated
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   // Focus input field
@@ -39,16 +37,6 @@ const Index = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
-
-  // Additional effect to ensure initial scroll works
-  useEffect(() => {
-    if (messages.length === 1) {
-      // For the first message, try multiple scroll attempts
-      setTimeout(() => scrollToBottom(), 100);
-      setTimeout(() => scrollToBottom(), 300);
-      setTimeout(() => scrollToBottom(), 500);
-    }
-  }, [messages.length]);
 
   // Auto-start conversation when component mounts
   useEffect(() => {
@@ -150,43 +138,40 @@ const Index = () => {
           <CardContent className="p-3 md:p-6 h-full flex flex-col min-h-0 pt-safe-top">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0 py-2 flex flex-col justify-end"
-              style={{ scrollBehavior: 'smooth' }}
+              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0 py-2"
             >
-              <div className="flex flex-col space-y-3 md:space-y-4">
-                {messages.map((message) => (
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+                >
                   <div
-                    key={message.id}
-                    className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+                    className={`max-w-[85%] md:max-w-[80%] rounded-lg px-3 md:px-4 py-2 ${
+                      message.isBot
+                        ? 'bg-secondary text-secondary-foreground'
+                        : 'bg-primary text-primary-foreground'
+                    }`}
                   >
-                    <div
-                      className={`max-w-[85%] md:max-w-[80%] rounded-lg px-3 md:px-4 py-2 ${
-                        message.isBot
-                          ? 'bg-secondary text-secondary-foreground'
-                          : 'bg-primary text-primary-foreground'
-                      }`}
-                    >
-                      <p className="text-sm leading-relaxed">{message.text}</p>
+                    <p className="text-sm leading-relaxed">{message.text}</p>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Typing indicator */}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-secondary text-secondary-foreground rounded-lg px-4 py-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
-                ))}
-                
-                {/* Typing indicator */}
-                {isTyping && (
-                  <div className="flex justify-start">
-                    <div className="bg-secondary text-secondary-foreground rounded-lg px-4 py-2">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Auto-scroll target */}
-                <div ref={messagesEndRef} />
-              </div>
+                </div>
+              )}
+              
+              {/* Auto-scroll target */}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Bootcamp Button */}
