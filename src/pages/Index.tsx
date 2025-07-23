@@ -132,17 +132,16 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background flex items-center justify-center px-4">
-      <div className="w-full max-w-2xl mx-auto">
-        <Card className="h-[600px]">
-          <CardContent className="p-6 h-full flex flex-col">
+    <div className="h-screen bg-gradient-background md:flex md:items-center md:justify-center md:px-4">
+      <div className="w-full max-w-2xl mx-auto h-full md:h-auto">
+        <Card className="h-full md:h-[600px] md:rounded-lg rounded-none border-0 md:border shadow-none md:shadow-sm">
+          <CardContent className="p-4 md:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-4 pr-2 flex-1"
+              className="overflow-y-auto space-y-4 pr-2 flex-1 mb-4"
               style={{
                 scrollbarWidth: 'thin',
-                scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)',
-                maxHeight: 'calc(600px - 140px)' // Card height minus padding and input area
+                scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)'
               }}
             >
               {messages.map((message) => (
@@ -181,10 +180,10 @@ const Index = () => {
 
             {/* Bootcamp Button */}
             {showBootcampButton && (
-              <div className="flex justify-center my-4">
+              <div className="flex justify-center mb-4">
                 <Button 
                   onClick={() => window.open(bootcampButtonUrl, '_blank')}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg w-full md:w-auto"
                 >
                   Visit Bootcamp Page
                 </Button>
@@ -193,16 +192,20 @@ const Index = () => {
 
             {/* Input Area */}
             {!isTyping && !showBootcampButton && (
-              <div className="flex space-x-2 mt-4">
+              <div className="flex space-x-2 pt-2 border-t border-border/20 md:border-t-0 md:pt-0">
                 <Input
                   ref={inputRef}
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your answer here..."
-                  className="flex-1"
+                  className="flex-1 h-12 md:h-auto text-base md:text-sm"
                 />
-                <Button onClick={handleUserResponse} disabled={!userInput.trim()}>
+                <Button 
+                  onClick={handleUserResponse} 
+                  disabled={!userInput.trim()}
+                  className="h-12 md:h-auto px-6 md:px-4"
+                >
                   Send
                 </Button>
               </div>
