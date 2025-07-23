@@ -132,13 +132,13 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-background md:flex md:items-center md:justify-center md:p-4">
+    <div className="h-screen bg-gradient-background flex flex-col md:items-center md:justify-center md:p-4">
       <div className="w-full max-w-2xl mx-auto h-full md:h-[600px] flex flex-col">
-        <Card className="h-full md:rounded-lg rounded-none border-0 md:border shadow-none md:shadow-sm flex flex-col">
-          <CardContent className="p-3 md:p-6 h-full flex flex-col min-h-0 pt-safe-top">
+        <Card className="h-full md:rounded-lg rounded-none border-0 md:border shadow-none md:shadow-sm">
+          <CardContent className="p-3 md:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0 py-2"
+              className="overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 flex-1 min-h-0"
             >
               {messages.map((message) => (
                 <div
@@ -188,7 +188,7 @@ const Index = () => {
 
             {/* Input Area */}
             {!isTyping && !showBootcampButton && (
-              <div className="flex space-x-2 mt-3 md:mt-4 pt-2 border-t border-border/20 md:border-t-0 md:pt-0 pb-safe">
+              <div className="flex space-x-2 mt-3 md:mt-4 pt-2 border-t border-border/20 md:border-t-0 md:pt-0">
                 <Input
                   ref={inputRef}
                   value={userInput}
