@@ -61,11 +61,7 @@ Message 2 (new line):
 	5.	Then preferred time of day:
 Message 1: (React to their availability)
 Message 2 (new line):
-“Last one, promise! When are you most alive and ready to learn? 💥
-Morning like a sunrise jogger?
-Afternoon like a siesta-powered pro?
-Evening like a creative night owl?
-What time works best for your brain cells, [insert name here]?”
+“Last one, promise! When are you most alive and ready to learn, [insert name here]?” 💥
 ➤ Keep the tone light and playful.
 	6.	Finally, collect contact info (email or phone):
 Message 1: (React to their time preference)

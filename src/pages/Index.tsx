@@ -256,7 +256,7 @@ const Index = () => {
                   Select your preferred time(s) for the bootcamp:
                 </div>
                 <div className="space-y-3">
-                  {["Morning", "Afternoon", "Evening"].map((option) => (
+                  {["Morning 🌅", "Afternoon 🌞", "Evening 🌜"].map((option) => (
                     <div key={option} className="flex items-center space-x-2">
                       <Checkbox
                         id={option}
