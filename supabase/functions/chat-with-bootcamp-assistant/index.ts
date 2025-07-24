@@ -162,7 +162,13 @@ serve(async (req)=>{
         } else {
           console.log('Application data stored successfully:', insertData);
         }
+        // Remove the JSON block from the botMessage
         botMessage = botMessage.replace(jsonMatch[0], '').trim();
+        // Remove any text that appears after 😎
+        const endIdx = botMessage.indexOf('😎');
+        if (endIdx !== -1) {
+          botMessage = botMessage.slice(0, endIdx + '😎'.length).trim();
+        }
       }
     } catch (jsonError) {
       console.log('No JSON data detected or parsing failed:', jsonError);
