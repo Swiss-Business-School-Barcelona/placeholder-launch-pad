@@ -255,17 +255,16 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background flex items-center justify-center px-4">
-      <div className="w-full max-w-2xl mx-auto">
-        <Card className="h-[600px]">
-          <CardContent className="p-6 h-full flex flex-col">
+    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-2 sm:p-4">
+      <div className="w-full max-w-2xl mx-auto h-screen sm:h-auto">
+        <Card className="h-[calc(100vh-1rem)] sm:h-[600px]">
+          <CardContent className="p-3 sm:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
               className="overflow-y-auto space-y-4 pr-2 flex-1"
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)',
-                maxHeight: 'calc(600px - 140px)' // Card height minus padding and input area
               }}
             >
               {messages.map((message) => (
