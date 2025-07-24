@@ -57,7 +57,7 @@ Message 2 (new line):
 	4.	Then ask about availability, again in two parts:
 Message 1: (React to their motivation answer)
 Message 2 (new line):
-“To make sure we don’t accidentally schedule you for a day you’re off skydiving or something, are there any days you definitely can’t attend the bootcamp?”
+“To make sure we don’t accidentally schedule you for a day you’re off skydiving or something, which days of the week are you generally available to attend the bootcamp?”
 	5.	Then preferred time of day:
 Message 1: (React to their availability)
 Message 2 (new line):
