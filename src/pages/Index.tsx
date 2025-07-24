@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -19,6 +20,8 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [showBootcampButton, setShowBootcampButton] = useState(false);
   const [bootcampButtonUrl, setBootcampButtonUrl] = useState("");
+  const [showTimeOptions, setShowTimeOptions] = useState(false);
+  const [selectedTimeOptions, setSelectedTimeOptions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -77,8 +80,61 @@ const Index = () => {
       setShowBootcampButton(true);
       setBootcampButtonUrl(buttonUrl);
     } else if (isBot) {
-      // Focus input when bot asks a new question (but not when showing button)
-      focusInput();
+      // Check if this is the time preference question
+      if (text.includes("When are you most alive and ready to learn")) {
+        setShowTimeOptions(true);
+        setSelectedTimeOptions([]);
+      } else {
+        // Focus input when bot asks a new question (but not when showing button or time options)
+        focusInput();
+      }
+    }
+  };
+
+  const handleTimeOptionChange = (option: string, checked: boolean) => {
+    setSelectedTimeOptions(prev => 
+      checked 
+        ? [...prev, option]
+        : prev.filter(item => item !== option)
+    );
+  };
+
+  const handleTimeOptionsSubmit = async () => {
+    if (selectedTimeOptions.length === 0) return;
+
+    const timeResponse = selectedTimeOptions.join(", ");
+    
+    // Add user response
+    addMessage(timeResponse, false);
+    setShowTimeOptions(false);
+    setSelectedTimeOptions([]);
+
+    // Show typing indicator immediately
+    setIsTyping(true);
+
+    // Prepare conversation history for OpenAI
+    const conversationHistory = messages.map(msg => ({
+      role: msg.isBot ? 'assistant' : 'user',
+      content: msg.text
+    }));
+    
+    // Add the current user message
+    conversationHistory.push({ role: 'user', content: timeResponse });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+        body: { messages: conversationHistory }
+      });
+      
+      if (error) throw error;
+      
+      // Hide typing indicator and show response
+      setIsTyping(false);
+      addMessage(data.message, true, data.showButton, data.buttonUrl);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      setIsTyping(false);
+      addMessage("I'm sorry, there was an error. Could you please repeat that?", true);
     }
   };
 
@@ -193,8 +249,41 @@ const Index = () => {
               </div>
             )}
 
+            {/* Time Options */}
+            {showTimeOptions && (
+              <div className="space-y-4 mt-4">
+                <div className="text-sm text-muted-foreground">
+                  Select your preferred time(s) for the bootcamp:
+                </div>
+                <div className="space-y-3">
+                  {["Morning", "Afternoon", "Evening"].map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={option}
+                        checked={selectedTimeOptions.includes(option)}
+                        onCheckedChange={(checked) => handleTimeOptionChange(option, checked as boolean)}
+                      />
+                      <label
+                        htmlFor={option}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {option}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  onClick={handleTimeOptionsSubmit} 
+                  disabled={selectedTimeOptions.length === 0}
+                  className="w-full"
+                >
+                  Continue
+                </Button>
+              </div>
+            )}
+
             {/* Input Area */}
-            {!isTyping && !showBootcampButton && (
+            {!isTyping && !showBootcampButton && !showTimeOptions && (
               <div className="flex space-x-2 mt-4">
                 <Input
                   ref={inputRef}
