@@ -145,6 +145,7 @@ serve(async (req)=>{
       botMessage = botMessage.replace(buttonMatch[0], '').trim();
     }
     try {
+      console.log('Attempting to parse JSON from botMessage:', botMessage);
       const jsonMatch = botMessage.match(/\{[\s\S]*"name"[\s\S]*"email"[\s\S]*"phone"[\s\S]*"linkedin"[\s\S]*"motivation"[\s\S]*"available_days"[\s\S]*"preferred_time"[\s\S]*\}/);
       if (jsonMatch) {
         const jsonData = JSON.parse(jsonMatch[0]);
