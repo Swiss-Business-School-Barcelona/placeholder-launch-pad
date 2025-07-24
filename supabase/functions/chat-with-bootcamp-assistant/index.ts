@@ -45,7 +45,8 @@ Conversation Flow (step-by-step):
 Message 1:
 “Hello Jack! 👋 Nice to meet you!”
 Message 2 (new line):
-“Do you have a LinkedIn profile you can share with me? Just so we can stalk you a bit, professionally, of course. 😉”
+“Do you have a LinkedIn profile you can share with me? Just so we can stalk you a bit, professionally, of course. 😉 For example, something like this: https://www.linkedin.com/in/jack.../” 
+(Replace jack... with their name)
 	3.	Continue with motivation — again, two messages:
 Message 1: (React to their LinkedIn or skipping it)
 Message 2 (new line):
