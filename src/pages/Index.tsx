@@ -22,6 +22,8 @@ const Index = () => {
   const [bootcampButtonUrl, setBootcampButtonUrl] = useState("");
   const [showTimeOptions, setShowTimeOptions] = useState(false);
   const [selectedTimeOptions, setSelectedTimeOptions] = useState<string[]>([]);
+  const [showDayOptions, setShowDayOptions] = useState(false);
+  const [selectedDayOptions, setSelectedDayOptions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -84,8 +86,11 @@ const Index = () => {
       if (text.includes("When are you most alive and ready to learn")) {
         setShowTimeOptions(true);
         setSelectedTimeOptions([]);
+      } else if (text.includes("which days of the week are you generally available")) {
+        setShowDayOptions(true);
+        setSelectedDayOptions([]);
       } else {
-        // Focus input when bot asks a new question (but not when showing button or time options)
+        // Focus input when bot asks a new question (but not when showing button, time options, or day options)
         focusInput();
       }
     }
@@ -97,6 +102,27 @@ const Index = () => {
         ? [...prev, option]
         : prev.filter(item => item !== option)
     );
+  };
+
+  const handleDayOptionChange = (option: string, checked: boolean) => {
+    if (option === "All the days") {
+      if (checked) {
+        // Select all weekdays
+        setSelectedDayOptions(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
+      } else {
+        // Deselect all
+        setSelectedDayOptions([]);
+      }
+    } else {
+      setSelectedDayOptions(prev => {
+        const newSelection = checked 
+          ? [...prev, option]
+          : prev.filter(item => item !== option);
+        
+        // If "All the days" was previously selected and we're deselecting a day, remove "All the days"
+        return newSelection.filter(item => item !== "All the days");
+      });
+    }
   };
 
   const handleTimeOptionsSubmit = async () => {
@@ -120,6 +146,45 @@ const Index = () => {
     
     // Add the current user message
     conversationHistory.push({ role: 'user', content: timeResponse });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+        body: { messages: conversationHistory }
+      });
+      
+      if (error) throw error;
+      
+      // Hide typing indicator and show response
+      setIsTyping(false);
+      addMessage(data.message, true, data.showButton, data.buttonUrl);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      setIsTyping(false);
+      addMessage("I'm sorry, there was an error. Could you please repeat that?", true);
+    }
+  };
+
+  const handleDayOptionsSubmit = async () => {
+    if (selectedDayOptions.length === 0) return;
+
+    const dayResponse = selectedDayOptions.join(", ");
+    
+    // Add user response
+    addMessage(dayResponse, false);
+    setShowDayOptions(false);
+    setSelectedDayOptions([]);
+
+    // Show typing indicator immediately
+    setIsTyping(true);
+
+    // Prepare conversation history for OpenAI
+    const conversationHistory = messages.map(msg => ({
+      role: msg.isBot ? 'assistant' : 'user',
+      content: msg.text
+    }));
+    
+    // Add the current user message
+    conversationHistory.push({ role: 'user', content: dayResponse });
 
     try {
       const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
@@ -249,6 +314,43 @@ const Index = () => {
               </div>
             )}
 
+            {/* Day Options */}
+            {showDayOptions && (
+              <div className="space-y-4 mt-4">
+                <div className="text-sm text-muted-foreground">
+                  Select the day(s) you're available for the bootcamp:
+                </div>
+                <div className="space-y-3">
+                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "All the days"].map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={option}
+                        checked={
+                          option === "All the days" 
+                            ? selectedDayOptions.length === 7 && ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].every(day => selectedDayOptions.includes(day))
+                            : selectedDayOptions.includes(option)
+                        }
+                        onCheckedChange={(checked) => handleDayOptionChange(option, checked as boolean)}
+                      />
+                      <label
+                        htmlFor={option}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {option}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  onClick={handleDayOptionsSubmit} 
+                  disabled={selectedDayOptions.length === 0}
+                  className="w-full"
+                >
+                  Continue
+                </Button>
+              </div>
+            )}
+
             {/* Time Options */}
             {showTimeOptions && (
               <div className="space-y-4 mt-4">
@@ -283,7 +385,7 @@ const Index = () => {
             )}
 
             {/* Input Area */}
-            {!isTyping && !showBootcampButton && !showTimeOptions && (
+            {!isTyping && !showBootcampButton && !showTimeOptions && !showDayOptions && (
               <div className="flex space-x-2 mt-4">
                 <Input
                   ref={inputRef}
