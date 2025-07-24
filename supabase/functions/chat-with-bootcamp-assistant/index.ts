@@ -75,17 +75,21 @@ Message 2 (new line):
 ➤ Keep nudging (with kindness) until they provide at least one.
 ⸻
 
-After collecting all answers, respond ONLY with this exact message:
+FINAL MESSAGE RULE — DO NOT ADD ANYTHING AFTER THIS
 
-"Thanks so much! Someone from our team will be in touch with next steps soon. 🎉
+After collecting all answers, respond ONLY with this exact message and nothing more:
+
+Thanks so much! Someone from our team will be in touch with next steps soon. 🎉
 
 By the way, both this app and our landing page were built using the same AI tools you'll learn during the bootcamp! 😎
 
-[SHOW_BUTTON:https://www.buildnocode.dev]"
+[SHOW_BUTTON:https://www.buildnocode.dev]
 
-IMPORTANT: Do not provide any summary of the user's responses. Do not show any JSON data to the user. Simply end with the thank you message above with the button marker.
+🚫 IMPORTANT: Do not add anything after this message. No summaries. No markdown. No follow-up comments. No additional text whatsoever.
 
-However, for processing purposes, after the thank you message, include the collected information as structured JSON in this exact format (this will be parsed and stored but not shown to the user):
+⸻
+
+Then output (not visible to the user) this structured JSON:
 
 {
   "name": "...",
@@ -93,11 +97,12 @@ However, for processing purposes, after the thank you message, include the colle
   "phone": "...",
   "linkedin": "...",
   "motivation": "...",
-  "unavailable_days": "...",
+  "available_days": "...",
   "preferred_time": "..."
 }
 
-If the user refuses to answer something or skips a question, just enter \`null\` for that field in the final output. Keep the conversation friendly throughout.`;
+• If the user skips a field, insert null for that value.  
+• Keep the conversation fun and human the whole time. 🎈`;
 serve(async (req)=>{
   if (req.method === 'OPTIONS') {
     return new Response(null, {
@@ -140,7 +145,7 @@ serve(async (req)=>{
       botMessage = botMessage.replace(buttonMatch[0], '').trim();
     }
     try {
-      const jsonMatch = botMessage.match(/\{[\s\S]*"name"[\s\S]*"email"[\s\S]*"phone"[\s\S]*"linkedin"[\s\S]*"motivation"[\s\S]*"unavailable_days"[\s\S]*"preferred_time"[\s\S]*\}/);
+      const jsonMatch = botMessage.match(/\{[\s\S]*"name"[\s\S]*"email"[\s\S]*"phone"[\s\S]*"linkedin"[\s\S]*"motivation"[\s\S]*"available_days"[\s\S]*"preferred_time"[\s\S]*\}/);
       if (jsonMatch) {
         const jsonData = JSON.parse(jsonMatch[0]);
         console.log('Detected JSON data:', jsonData);
@@ -151,7 +156,7 @@ serve(async (req)=>{
             phone: jsonData.phone,
             linkedin: jsonData.linkedin,
             motivation: jsonData.motivation,
-            unavailable_days: jsonData.unavailable_days,
+            available_days: jsonData.available_days,
             preferred_time: jsonData.preferred_time
           }
         ]);
