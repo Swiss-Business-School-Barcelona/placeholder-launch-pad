@@ -309,7 +309,7 @@ const Index = () => {
                   onClick={() => window.open(bootcampButtonUrl, '_blank')}
                   variant="hero"
                 >
-                  Visit Bootcamp Page
+                  Visit Bootcamp Site
                 </Button>
               </div>
             )}
