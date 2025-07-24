@@ -41,20 +41,22 @@ const Index = () => {
   // Auto-start conversation when component mounts
   useEffect(() => {
     const initializeConversation = async () => {
-      simulateTyping(async () => {
-        try {
-          const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
-            body: { messages: [] }
-          });
-          
-          if (error) throw error;
-          
-          addMessage(data.message, true, data.showButton, data.buttonUrl);
-        } catch (error) {
-          console.error('Error starting conversation:', error);
-          addMessage("Hi! I'm here to help you with your bootcamp application. What's your age?", true);
-        }
-      });
+      setIsTyping(true);
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('chat-with-bootcamp-assistant', {
+          body: { messages: [] }
+        });
+        
+        if (error) throw error;
+        
+        setIsTyping(false);
+        addMessage(data.message, true, data.showButton, data.buttonUrl);
+      } catch (error) {
+        console.error('Error starting conversation:', error);
+        setIsTyping(false);
+        addMessage("Hi! I'm here to help you with your bootcamp application. What's your name?", true);
+      }
     };
 
     initializeConversation();
