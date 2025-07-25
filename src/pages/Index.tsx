@@ -79,9 +79,9 @@ const Index = () => {
     initializeConversation();
   }, []);
 
-  const storeApplicationData = async (finalData: QAData) => {
+  const storeApplicationData = async (dataToStore: Partial<QAData>) => {
     try {
-      const { error } = await supabase.from('bootcamp_applications').insert([finalData]);
+      const { error } = await supabase.from('bootcamp_applications').insert([dataToStore]);
       if (error) {
         console.error('Error storing application data:', error);
       } else {
@@ -106,10 +106,6 @@ const Index = () => {
     if (showButton && buttonUrl) {
       setShowBootcampButton(true);
       setBootcampButtonUrl(buttonUrl);
-      // When the final message with button is shown, store the collected data
-      if (qaData.name && (qaData.email || qaData.phone)) {
-        storeApplicationData(qaData as QAData);
-      }
     } else if (isBot) {
       // Track the current question being asked
       if (text.includes("What should I call you")) {
@@ -309,6 +305,18 @@ const Index = () => {
       // Hide typing indicator and show response
       setIsTyping(false);
       addMessage(data.message, true, data.showButton, data.buttonUrl);
+      
+      // Store data if this is the final message and we have contact info
+      if (data.showButton && currentQuestion === "contact") {
+        setTimeout(() => {
+          setQaData(currentData => {
+            if (currentData.name && (currentData.email || currentData.phone)) {
+              storeApplicationData(currentData);
+            }
+            return currentData;
+          });
+        }, 100);
+      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       setIsTyping(false);
