@@ -83,21 +83,8 @@ By the way, both this app and our landing page were built using the same AI tool
 
 [SHOW_BUTTON:https://www.buildnocode.dev]"
 
-IMPORTANT: Do not provide any summary of the user's responses. Do not show any JSON data to the user. Simply end with the thank you message above with the button marker.
+IMPORTANT: Do not provide any summary of the user's responses. Simply end with the thank you message above with the button marker.
 
-However, for processing purposes, after the thank you message, include the collected information as structured JSON in this exact format (this will be parsed and stored but not shown to the user):
-
-{
-  "name": "...",
-  "email": "...",
-  "phone": "...",
-  "linkedin": "...",
-  "motivation": "...",
-  "available_days": "...",
-  "preferred_time": "..."
-}
-
-• If the user skips a field, insert null for that value.  
 • Keep the conversation fun and human the whole time. 🎈`;
 serve(async (req)=>{
   if (req.method === 'OPTIONS') {
@@ -140,39 +127,8 @@ serve(async (req)=>{
       buttonUrl = buttonMatch[1];
       botMessage = botMessage.replace(buttonMatch[0], '').trim();
     }
-    try {
-      console.log('Attempting to parse JSON from botMessage:', botMessage);
-      const jsonMatch = botMessage.match(/\{[\s\S]*"name"[\s\S]*"email"[\s\S]*"phone"[\s\S]*"linkedin"[\s\S]*"motivation"[\s\S]*"available_days"[\s\S]*"preferred_time"[\s\S]*\}/);
-      if (jsonMatch) {
-        const jsonData = JSON.parse(jsonMatch[0]);
-        console.log('Detected JSON data:', jsonData);
-        const { data: insertData, error: insertError } = await supabase.from('bootcamp_applications').insert([
-          {
-            name: jsonData.name,
-            email: jsonData.email,
-            phone: jsonData.phone,
-            linkedin: jsonData.linkedin,
-            motivation: jsonData.motivation,
-            available_days: jsonData.available_days,
-            preferred_time: jsonData.preferred_time
-          }
-        ]);
-        if (insertError) {
-          console.error('Error storing application data:', insertError);
-        } else {
-          console.log('Application data stored successfully:', insertData);
-        }
-        // Remove the JSON block from the botMessage
-        botMessage = botMessage.replace(jsonMatch[0], '').trim();
-        // Remove any text that appears after 😎
-        const endIdx = botMessage.indexOf('😎');
-        if (endIdx !== -1) {
-          botMessage = botMessage.slice(0, endIdx + '😎'.length).trim();
-        }
-      }
-    } catch (jsonError) {
-      console.log('No JSON data detected or parsing failed:', jsonError);
-    }
+    // Data storage is now handled on the frontend
+    console.log('Bot response ready to send:', botMessage);
     return new Response(JSON.stringify({
       message: botMessage,
       showButton,

@@ -14,6 +14,16 @@ interface Message {
   buttonUrl?: string;
 }
 
+interface QAData {
+  name: string;
+  linkedin: string;
+  motivation: string;
+  available_days: string;
+  preferred_time: string;
+  email: string;
+  phone: string;
+}
+
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState("");
@@ -24,6 +34,8 @@ const Index = () => {
   const [selectedTimeOptions, setSelectedTimeOptions] = useState<string[]>([]);
   const [showDayOptions, setShowDayOptions] = useState(false);
   const [selectedDayOptions, setSelectedDayOptions] = useState<string[]>([]);
+  const [qaData, setQaData] = useState<Partial<QAData>>({});
+  const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,6 +79,19 @@ const Index = () => {
     initializeConversation();
   }, []);
 
+  const storeApplicationData = async (finalData: QAData) => {
+    try {
+      const { error } = await supabase.from('bootcamp_applications').insert([finalData]);
+      if (error) {
+        console.error('Error storing application data:', error);
+      } else {
+        console.log('Application data stored successfully');
+      }
+    } catch (error) {
+      console.error('Error storing application:', error);
+    }
+  };
+
   const addMessage = (text: string, isBot: boolean, showButton?: boolean, buttonUrl?: string) => {
     const newMessage: Message = {
       id: Date.now(),
@@ -81,14 +106,28 @@ const Index = () => {
     if (showButton && buttonUrl) {
       setShowBootcampButton(true);
       setBootcampButtonUrl(buttonUrl);
+      // When the final message with button is shown, store the collected data
+      if (qaData.name && (qaData.email || qaData.phone)) {
+        storeApplicationData(qaData as QAData);
+      }
     } else if (isBot) {
-      // Check if this is the time preference question
-      if (text.includes("When are you most alive and ready to learn")) {
-        setShowTimeOptions(true);
-        setSelectedTimeOptions([]);
+      // Track the current question being asked
+      if (text.includes("What should I call you")) {
+        setCurrentQuestion("name");
+      } else if (text.includes("LinkedIn profile")) {
+        setCurrentQuestion("linkedin");
+      } else if (text.includes("wants to attend the bootcamp so")) {
+        setCurrentQuestion("motivation");
       } else if (text.includes("which days of the week are you generally available")) {
         setShowDayOptions(true);
         setSelectedDayOptions([]);
+        setCurrentQuestion("available_days");
+      } else if (text.includes("When are you most alive and ready to learn")) {
+        setShowTimeOptions(true);
+        setSelectedTimeOptions([]);
+        setCurrentQuestion("preferred_time");
+      } else if (text.includes("email address or phone number")) {
+        setCurrentQuestion("contact");
       } else {
         // Focus input when bot asks a new question (but not when showing button, time options, or day options)
         focusInput();
@@ -130,6 +169,9 @@ const Index = () => {
 
     const timeResponse = selectedTimeOptions.join(", ");
     
+    // Store the preferred time data
+    setQaData(prev => ({ ...prev, preferred_time: timeResponse }));
+    
     // Add user response
     addMessage(timeResponse, false);
     setShowTimeOptions(false);
@@ -168,6 +210,9 @@ const Index = () => {
     if (selectedDayOptions.length === 0) return;
 
     const dayResponse = selectedDayOptions.join(", ");
+    
+    // Store the available days data
+    setQaData(prev => ({ ...prev, available_days: dayResponse }));
     
     // Add user response
     addMessage(dayResponse, false);
@@ -213,6 +258,29 @@ const Index = () => {
 
   const handleUserResponse = async () => {
     if (!userInput.trim()) return;
+
+    // Store the answer based on current question
+    const answer = userInput.trim();
+    if (currentQuestion === "name") {
+      setQaData(prev => ({ ...prev, name: answer }));
+    } else if (currentQuestion === "linkedin") {
+      setQaData(prev => ({ ...prev, linkedin: answer }));
+    } else if (currentQuestion === "motivation") {
+      setQaData(prev => ({ ...prev, motivation: answer }));
+    } else if (currentQuestion === "contact") {
+      // Parse email or phone from the contact response
+      const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+      const phoneRegex = /[\+]?[1-9][\d]{3,14}\b/;
+      
+      const emailMatch = answer.match(emailRegex);
+      const phoneMatch = answer.match(phoneRegex);
+      
+      setQaData(prev => ({ 
+        ...prev, 
+        email: emailMatch ? emailMatch[0] : "",
+        phone: phoneMatch ? phoneMatch[0] : answer.includes("@") ? "" : answer
+      }));
+    }
 
     // Add user response
     addMessage(userInput, false);
