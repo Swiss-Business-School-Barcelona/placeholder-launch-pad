@@ -93,9 +93,12 @@ const Index = () => {
   };
 
   const addMessage = (text: string, isBot: boolean, showButton?: boolean, buttonUrl?: string) => {
+    console.log('Adding message:', { text, isBot, showButton, buttonUrl });
+    
     if (isBot && text.includes('\n') && !text.includes('[SHOW_BUTTON:')) {
       // Split the message by newlines and add each part as a separate message
       const parts = text.split('\n').filter(part => part.trim() !== '');
+      console.log('Splitting message into parts:', parts);
       
       parts.forEach((part, index) => {
         setTimeout(() => {
@@ -111,6 +114,7 @@ const Index = () => {
           
           // Handle question detection on the last part AND ensure we process the complete text
           if (index === parts.length - 1) {
+            console.log('Processing question detection for complete text:', text);
             // Use the original complete text for question detection to ensure accuracy
             handleQuestionDetection(text);
           }
@@ -131,6 +135,7 @@ const Index = () => {
         setShowBootcampButton(true);
         setBootcampButtonUrl(buttonUrl);
       } else if (isBot) {
+        console.log('Processing question detection for single message:', text);
         handleQuestionDetection(text);
       }
     }
