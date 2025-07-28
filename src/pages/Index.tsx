@@ -114,6 +114,13 @@ const Index = () => {
         setCurrentQuestion("motivation");
       } else if (text.includes("LinkedIn profile")) {
         setCurrentQuestion("linkedin");
+        setUserInput("https://www.linkedin.com/in/");
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.focus();
+            inputRef.current.setSelectionRange(inputRef.current.value.length, inputRef.current.value.length);
+          }
+        }, 100);
       } else if (text.includes("which days of the week are you generally available")) {
         setShowDayOptions(true);
         setSelectedDayOptions([]);
