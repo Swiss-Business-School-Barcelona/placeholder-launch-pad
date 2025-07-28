@@ -73,7 +73,7 @@ Message 2 (new line):
 Message 1: (React to their motivation)
 Message 2 (new line):
 “Do you have a LinkedIn profile you can share with me? Just so we can stalk you a bit, professionally, of course. 😉
-For example, something like this: https://www.linkedin.com/in/jack…/”
+Just add your username to the end of this: https://www.linkedin.com/in/”
 (Replace jack… with their name)
 ⸻
 
