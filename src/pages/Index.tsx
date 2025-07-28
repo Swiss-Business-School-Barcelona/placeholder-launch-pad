@@ -468,7 +468,11 @@ const Index = () => {
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Type your answer here..."
+                  placeholder={
+                    currentQuestion === "linkedin" 
+                      ? "https://www.linkedin.com/in/" 
+                      : "Type your answer here..."
+                  }
                   className="flex-1"
                 />
                 <Button onClick={handleUserResponse} disabled={!userInput.trim()}>
