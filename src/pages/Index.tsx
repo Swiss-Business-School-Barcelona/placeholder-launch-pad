@@ -339,13 +339,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-2 sm:p-4">
+    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-1 sm:p-4">
       <div className="w-full max-w-2xl mx-auto h-[100dvh] sm:h-auto flex flex-col">
-        <Card className="h-[calc(100dvh-1rem)] sm:h-[600px] flex flex-col">
-          <CardContent className="p-3 sm:p-6 h-full flex flex-col">
+        <Card className="h-full sm:h-[600px] flex flex-col">
+          <CardContent className="p-2 sm:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
-              className="overflow-y-auto space-y-4 pr-2 flex-1"
+              className="overflow-y-auto space-y-3 sm:space-y-4 pr-1 sm:pr-2 flex-1 min-h-0"
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: 'rgb(203 213 225) rgb(241 245 249)',
@@ -357,13 +357,13 @@ const Index = () => {
                   className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                    className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 py-2 sm:px-4 sm:py-2 ${
                       message.isBot
                         ? 'bg-secondary text-secondary-foreground'
                         : 'bg-primary text-primary-foreground'
                     }`}
                   >
-                    <p className="text-sm">{message.text}</p>
+                    <p className="text-sm sm:text-base leading-relaxed">{message.text}</p>
                   </div>
                 </div>
               ))}
@@ -371,7 +371,7 @@ const Index = () => {
               {/* Typing indicator */}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-secondary text-secondary-foreground rounded-lg px-4 py-2">
+                  <div className="bg-secondary text-secondary-foreground rounded-lg px-3 py-2 sm:px-4 sm:py-2">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -387,10 +387,11 @@ const Index = () => {
 
             {/* Bootcamp Button */}
             {showBootcampButton && (
-              <div className="flex justify-center my-4">
+              <div className="flex justify-center my-3 sm:my-4 px-2">
                 <Button 
                   onClick={() => window.open(bootcampButtonUrl, '_blank')}
                   variant="hero"
+                  className="w-full max-w-xs sm:w-auto text-sm sm:text-base py-3 sm:py-2"
                 >
                   Visit Bootcamp Page
                 </Button>
@@ -399,13 +400,13 @@ const Index = () => {
 
             {/* Day Options */}
             {showDayOptions && (
-              <div className="space-y-4 mt-4">
+              <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
                 <div className="text-sm text-muted-foreground">
                   Select the day(s) you're available for the bootcamp:
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
                   {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "All the days"].map((option) => (
-                    <div key={option} className="flex items-center space-x-2">
+                    <div key={option} className="flex items-center space-x-3 py-1">
                       <Checkbox
                         id={option}
                         checked={
@@ -414,10 +415,11 @@ const Index = () => {
                             : selectedDayOptions.includes(option)
                         }
                         onCheckedChange={(checked) => handleDayOptionChange(option, checked as boolean)}
+                        className="h-5 w-5"
                       />
                       <label
                         htmlFor={option}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 py-2"
                       >
                         {option}
                       </label>
@@ -427,7 +429,7 @@ const Index = () => {
                 <Button 
                   onClick={handleDayOptionsSubmit} 
                   disabled={selectedDayOptions.length === 0}
-                  className="w-full"
+                  className="w-full py-3 text-sm sm:text-base"
                 >
                   Continue
                 </Button>
@@ -436,21 +438,22 @@ const Index = () => {
 
             {/* Time Options */}
             {showTimeOptions && (
-              <div className="space-y-4 mt-4">
+              <div className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
                 <div className="text-sm text-muted-foreground">
                   Select your preferred time(s) for the bootcamp:
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {["Morning 🌅", "Afternoon 🌞", "Evening 🌜"].map((option) => (
-                    <div key={option} className="flex items-center space-x-2">
+                    <div key={option} className="flex items-center space-x-3 py-1">
                       <Checkbox
                         id={option}
                         checked={selectedTimeOptions.includes(option)}
                         onCheckedChange={(checked) => handleTimeOptionChange(option, checked as boolean)}
+                        className="h-5 w-5"
                       />
                       <label
                         htmlFor={option}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 py-2"
                       >
                         {option}
                       </label>
@@ -460,7 +463,7 @@ const Index = () => {
                 <Button 
                   onClick={handleTimeOptionsSubmit} 
                   disabled={selectedTimeOptions.length === 0}
-                  className="w-full"
+                  className="w-full py-3 text-sm sm:text-base"
                 >
                   Continue
                 </Button>
@@ -469,7 +472,7 @@ const Index = () => {
 
             {/* Input Area */}
             {!isTyping && !showBootcampButton && !showTimeOptions && !showDayOptions && (
-              <div className="flex space-x-2 mt-4">
+              <div className="flex space-x-2 mt-3 sm:mt-4 px-1 sm:px-0">
                 <Input
                   ref={inputRef}
                   value={userInput}
@@ -480,9 +483,13 @@ const Index = () => {
                       ? "https://www.linkedin.com/in/" 
                       : "Type your answer here..."
                   }
-                  className="flex-1"
+                  className="flex-1 text-sm sm:text-base py-3 sm:py-2 px-3 sm:px-4"
                 />
-                <Button onClick={handleUserResponse} disabled={!userInput.trim()}>
+                <Button 
+                  onClick={handleUserResponse} 
+                  disabled={!userInput.trim()}
+                  className="px-4 sm:px-6 py-3 sm:py-2 text-sm sm:text-base whitespace-nowrap"
+                >
                   Send
                 </Button>
               </div>
