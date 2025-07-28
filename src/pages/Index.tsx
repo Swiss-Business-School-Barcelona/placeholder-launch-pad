@@ -404,27 +404,34 @@ const Index = () => {
                 <div className="text-sm text-muted-foreground">
                   Select the day(s) you're available for the bootcamp:
                 </div>
-                <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
-                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "All the days"].map((option) => (
-                    <div key={option} className="flex items-center space-x-3 py-1">
-                      <Checkbox
-                        id={option}
-                        checked={
-                          option === "All the days" 
-                            ? selectedDayOptions.length === 7 && ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].every(day => selectedDayOptions.includes(day))
-                            : selectedDayOptions.includes(option)
-                        }
-                        onCheckedChange={(checked) => handleDayOptionChange(option, checked as boolean)}
-                        className="h-5 w-5"
-                      />
-                      <label
-                        htmlFor={option}
-                        className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 py-2"
-                      >
-                        {option}
-                      </label>
-                    </div>
-                  ))}
+                <div className="relative">
+                  <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
+                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "All the days"].map((option) => (
+                      <div key={option} className="flex items-center space-x-3 py-1">
+                        <Checkbox
+                          id={option}
+                          checked={
+                            option === "All the days" 
+                              ? selectedDayOptions.length === 7 && ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].every(day => selectedDayOptions.includes(day))
+                              : selectedDayOptions.includes(option)
+                          }
+                          onCheckedChange={(checked) => handleDayOptionChange(option, checked as boolean)}
+                          className="h-5 w-5"
+                        />
+                        <label
+                          htmlFor={option}
+                          className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 py-2"
+                        >
+                          {option}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Scroll indicator gradient */}
+                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
+                </div>
+                <div className="text-xs text-muted-foreground text-center">
+                  Scroll to see more options ↓
                 </div>
                 <Button 
                   onClick={handleDayOptionsSubmit} 
