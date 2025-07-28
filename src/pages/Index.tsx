@@ -340,8 +340,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-background flex items-center justify-center p-2 sm:p-4">
-      <div className="w-full max-w-2xl mx-auto h-screen sm:h-auto">
-        <Card className="h-[calc(100vh-1rem)] sm:h-[600px]">
+      <div className="w-full max-w-2xl mx-auto min-h-[calc(100vh-1rem)] sm:h-auto flex flex-col">
+        <Card className="flex-1 sm:h-[600px] min-h-0">
           <CardContent className="p-3 sm:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
