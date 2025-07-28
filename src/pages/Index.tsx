@@ -470,33 +470,38 @@ const Index = () => {
               </div>
             )}
 
-            {/* Input Area */}
-            {!isTyping && !showBootcampButton && !showTimeOptions && !showDayOptions && (
-              <div className="flex space-x-2 mt-3 sm:mt-4 px-1 sm:px-0">
-                <Input
-                  ref={inputRef}
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={
-                    currentQuestion === "linkedin" 
-                      ? "https://www.linkedin.com/in/" 
-                      : "Type your answer here..."
-                  }
-                  className="flex-1 text-sm sm:text-base py-3 sm:py-2 px-3 sm:px-4"
-                />
-                <Button 
-                  onClick={handleUserResponse} 
-                  disabled={!userInput.trim()}
-                  className="px-4 sm:px-6 py-3 sm:py-2 text-sm sm:text-base whitespace-nowrap"
-                >
-                  Send
-                </Button>
-              </div>
-            )}
+            {/* Bottom padding for fixed input */}
+            <div className="h-16 sm:h-20" />
           </CardContent>
         </Card>
       </div>
+      
+      {/* Fixed Input Area */}
+      {!isTyping && !showBootcampButton && !showTimeOptions && !showDayOptions && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-2 sm:p-4">
+          <div className="w-full max-w-2xl mx-auto flex space-x-2">
+            <Input
+              ref={inputRef}
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={
+                currentQuestion === "linkedin" 
+                  ? "https://www.linkedin.com/in/" 
+                  : "Type your answer here..."
+              }
+              className="flex-1 text-sm sm:text-base py-3 sm:py-2 px-3 sm:px-4"
+            />
+            <Button 
+              onClick={handleUserResponse} 
+              disabled={!userInput.trim()}
+              className="px-4 sm:px-6 py-3 sm:py-2 text-sm sm:text-base whitespace-nowrap"
+            >
+              Send
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
