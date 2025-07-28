@@ -110,10 +110,10 @@ const Index = () => {
       // Track the current question being asked
       if (text.includes("What should I call you")) {
         setCurrentQuestion("name");
-      } else if (text.includes("LinkedIn profile")) {
-        setCurrentQuestion("linkedin");
       } else if (text.includes("wants to attend the bootcamp so")) {
         setCurrentQuestion("motivation");
+      } else if (text.includes("LinkedIn profile")) {
+        setCurrentQuestion("linkedin");
       } else if (text.includes("which days of the week are you generally available")) {
         setShowDayOptions(true);
         setSelectedDayOptions([]);
@@ -306,10 +306,11 @@ const Index = () => {
       setIsTyping(false);
       addMessage(data.message, true, data.showButton, data.buttonUrl);
       
-      // Store data if this is the final message and we have contact info
-      if (data.showButton && currentQuestion === "contact") {
+      // Store data when conversation is complete (when button appears)
+      if (data.showButton) {
         setTimeout(() => {
           setQaData(currentData => {
+            console.log('Final data to store:', currentData);
             if (currentData.name && (currentData.email || currentData.phone)) {
               storeApplicationData(currentData);
             }
