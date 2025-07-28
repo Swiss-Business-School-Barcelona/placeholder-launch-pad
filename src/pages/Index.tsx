@@ -93,48 +93,76 @@ const Index = () => {
   };
 
   const addMessage = (text: string, isBot: boolean, showButton?: boolean, buttonUrl?: string) => {
-    const newMessage: Message = {
-      id: Date.now(),
-      text,
-      isBot,
-      timestamp: new Date(),
-      showButton,
-      buttonUrl
-    };
-    setMessages(prev => [...prev, newMessage]);
-    
-    if (showButton && buttonUrl) {
-      setShowBootcampButton(true);
-      setBootcampButtonUrl(buttonUrl);
-    } else if (isBot) {
-      // Track the current question being asked
-      if (text.includes("What should I call you")) {
-        setCurrentQuestion("name");
-      } else if (text.includes("wants to attend the bootcamp so")) {
-        setCurrentQuestion("motivation");
-      } else if (text.includes("LinkedIn profile")) {
-        setCurrentQuestion("linkedin");
-        setUserInput("https://www.linkedin.com/in/");
+    if (isBot && text.includes('\n') && !text.includes('[SHOW_BUTTON:')) {
+      // Split the message by newlines and add each part as a separate message
+      const parts = text.split('\n').filter(part => part.trim() !== '');
+      
+      parts.forEach((part, index) => {
         setTimeout(() => {
-          if (inputRef.current) {
-            inputRef.current.focus();
-            inputRef.current.setSelectionRange(inputRef.current.value.length, inputRef.current.value.length);
+          const newMessage: Message = {
+            id: Date.now() + index,
+            text: part.trim(),
+            isBot: true,
+            timestamp: new Date(),
+            showButton: false,
+            buttonUrl: undefined
+          };
+          setMessages(prev => [...prev, newMessage]);
+          
+          // Only handle question detection on the last part
+          if (index === parts.length - 1) {
+            handleQuestionDetection(part.trim());
           }
-        }, 100);
-      } else if (text.includes("which days of the week are you generally available")) {
-        setShowDayOptions(true);
-        setSelectedDayOptions([]);
-        setCurrentQuestion("available_days");
-      } else if (text.includes("When are you most alive and ready to learn")) {
-        setShowTimeOptions(true);
-        setSelectedTimeOptions([]);
-        setCurrentQuestion("preferred_time");
-      } else if (text.includes("email address or phone number")) {
-        setCurrentQuestion("contact");
-      } else {
-        // Focus input when bot asks a new question (but not when showing button, time options, or day options)
-        focusInput();
+        }, index * 1000); // 1 second delay between messages
+      });
+    } else {
+      const newMessage: Message = {
+        id: Date.now(),
+        text,
+        isBot,
+        timestamp: new Date(),
+        showButton,
+        buttonUrl
+      };
+      setMessages(prev => [...prev, newMessage]);
+      
+      if (showButton && buttonUrl) {
+        setShowBootcampButton(true);
+        setBootcampButtonUrl(buttonUrl);
+      } else if (isBot) {
+        handleQuestionDetection(text);
       }
+    }
+  };
+
+  const handleQuestionDetection = (text: string) => {
+    // Track the current question being asked
+    if (text.includes("What should I call you")) {
+      setCurrentQuestion("name");
+    } else if (text.includes("wants to attend the bootcamp so")) {
+      setCurrentQuestion("motivation");
+    } else if (text.includes("LinkedIn profile")) {
+      setCurrentQuestion("linkedin");
+      setUserInput("https://www.linkedin.com/in/");
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.setSelectionRange(inputRef.current.value.length, inputRef.current.value.length);
+        }
+      }, 100);
+    } else if (text.includes("which days of the week are you generally available")) {
+      setShowDayOptions(true);
+      setSelectedDayOptions([]);
+      setCurrentQuestion("available_days");
+    } else if (text.includes("When are you most alive and ready to learn")) {
+      setShowTimeOptions(true);
+      setSelectedTimeOptions([]);
+      setCurrentQuestion("preferred_time");
+    } else if (text.includes("email address or phone number")) {
+      setCurrentQuestion("contact");
+    } else {
+      // Focus input when bot asks a new question (but not when showing button, time options, or day options)
+      focusInput();
     }
   };
 
