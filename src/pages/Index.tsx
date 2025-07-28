@@ -95,32 +95,106 @@ const Index = () => {
   const addMessage = (text: string, isBot: boolean, showButton?: boolean, buttonUrl?: string) => {
     console.log('Adding message:', { text, isBot, showButton, buttonUrl });
     
-    if (isBot && text.includes('\n') && !text.includes('[SHOW_BUTTON:')) {
-      // Split the message by newlines and add each part as a separate message
-      const parts = text.split('\n').filter(part => part.trim() !== '');
-      console.log('Splitting message into parts:', parts);
+    if (isBot && !text.includes('[SHOW_BUTTON:') && !showButton) {
+      // Hardcoded splitting rules
+      let parts: string[] = [];
       
-      parts.forEach((part, index) => {
-        setTimeout(() => {
-          const newMessage: Message = {
-            id: Date.now() + index,
-            text: part.trim(),
-            isBot: true,
-            timestamp: new Date(),
-            showButton: false,
-            buttonUrl: undefined
-          };
-          setMessages(prev => [...prev, newMessage]);
-          
-          // Handle question detection on the last part AND ensure we process the complete text
-          if (index === parts.length - 1) {
-            console.log('Processing question detection for complete text:', text);
-            // Use the original complete text for question detection to ensure accuracy
-            handleQuestionDetection(text);
-          }
-        }, index * 1000); // 1 second delay between messages
-      });
+      if (text.includes("Nice to meet you!")) {
+        parts = text.split("Nice to meet you!");
+        if (parts.length === 2) {
+          parts[0] = parts[0].trim() + " Nice to meet you!";
+          parts[1] = parts[1].trim();
+        }
+      } else if (text.includes("Do you have a LinkedIn profile")) {
+        const splitIndex = text.indexOf("Do you have a LinkedIn profile");
+        parts = [
+          text.substring(0, splitIndex).trim(),
+          text.substring(splitIndex).trim()
+        ];
+      } else if (text.includes("To make sure we don't accidentally schedule")) {
+        const splitIndex = text.indexOf("To make sure we don't accidentally schedule");
+        parts = [
+          text.substring(0, splitIndex).trim(),
+          text.substring(splitIndex).trim()
+        ];
+      } else if (text.includes("which days of the week are you generally available")) {
+        const splitIndex = text.indexOf("To make sure we don't accidentally schedule");
+        parts = [
+          text.substring(0, splitIndex).trim(),
+          text.substring(splitIndex).trim()
+        ];
+      } else if (text.includes("When are you most alive and ready to learn")) {
+        const splitIndex = text.indexOf("When are you most alive and ready to learn");
+        parts = [
+          text.substring(0, splitIndex).trim(),
+          text.substring(splitIndex).trim()
+        ];
+      } else if (text.includes("Now help me complete this sentence:")) {
+        const splitIndex = text.indexOf("Now help me complete this sentence:");
+        parts = [
+          text.substring(0, splitIndex).trim(),
+          text.substring(splitIndex).trim()
+        ];
+      } else if (text.includes("Thanks so much! Someone from our team will be in touch with next steps soon.")) {
+        const splitPhrase = "Thanks so much! Someone from our team will be in touch with next steps soon. 🎉";
+        const splitIndex = text.indexOf(splitPhrase) + splitPhrase.length;
+        parts = [
+          text.substring(0, splitIndex).trim(),
+          text.substring(splitIndex).trim()
+        ];
+      } else {
+        // No splitting rule matches, treat as single message
+        parts = [text];
+      }
+      
+      // Filter out empty parts
+      parts = parts.filter(part => part.trim() !== '');
+      
+      if (parts.length > 1) {
+        console.log('Splitting message into parts:', parts);
+        
+        parts.forEach((part, index) => {
+          setTimeout(() => {
+            const newMessage: Message = {
+              id: Date.now() + index,
+              text: part.trim(),
+              isBot: true,
+              timestamp: new Date(),
+              showButton: false,
+              buttonUrl: undefined
+            };
+            setMessages(prev => [...prev, newMessage]);
+            
+            // Handle question detection on the last part AND ensure we process the complete text
+            if (index === parts.length - 1) {
+              console.log('Processing question detection for complete text:', text);
+              // Use the original complete text for question detection to ensure accuracy
+              handleQuestionDetection(text);
+            }
+          }, index * 1000); // 1 second delay between messages
+        });
+      } else {
+        // Single message
+        const newMessage: Message = {
+          id: Date.now(),
+          text,
+          isBot,
+          timestamp: new Date(),
+          showButton,
+          buttonUrl
+        };
+        setMessages(prev => [...prev, newMessage]);
+        
+        if (showButton && buttonUrl) {
+          setShowBootcampButton(true);
+          setBootcampButtonUrl(buttonUrl);
+        } else if (isBot) {
+          console.log('Processing question detection for single message:', text);
+          handleQuestionDetection(text);
+        }
+      }
     } else {
+      // Non-bot message or button message
       const newMessage: Message = {
         id: Date.now(),
         text,
