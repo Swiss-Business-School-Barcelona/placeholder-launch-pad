@@ -490,7 +490,7 @@ const Index = () => {
                   ? "https://www.linkedin.com/in/" 
                   : "Type your answer here..."
               }
-              className="flex-1 text-sm sm:text-base py-3 sm:py-2 px-3 sm:px-4"
+              className="flex-1 text-base py-3 sm:py-2 px-3 sm:px-4"
             />
             <Button 
               onClick={handleUserResponse} 
