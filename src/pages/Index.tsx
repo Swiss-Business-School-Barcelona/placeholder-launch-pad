@@ -339,9 +339,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background flex items-center justify-center p-1 sm:p-4">
-      <div className="w-full max-w-2xl mx-auto h-[100dvh] sm:h-auto flex flex-col">
-        <Card className="h-full sm:h-[600px] flex flex-col">
+    <div className="h-[100dvh] bg-gradient-background flex flex-col">
+      <div className="w-full max-w-2xl mx-auto h-full flex flex-col px-1 sm:px-4 py-1 sm:py-4">
+        <Card className="h-full flex flex-col border-0 sm:border shadow-none sm:shadow-sm rounded-none sm:rounded-lg">
           <CardContent className="p-2 sm:p-6 h-full flex flex-col">
             {/* Chat Messages */}
             <div 
