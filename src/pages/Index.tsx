@@ -109,9 +109,10 @@ const Index = () => {
           };
           setMessages(prev => [...prev, newMessage]);
           
-          // Only handle question detection on the last part
+          // Handle question detection on the last part AND ensure we process the complete text
           if (index === parts.length - 1) {
-            handleQuestionDetection(part.trim());
+            // Use the original complete text for question detection to ensure accuracy
+            handleQuestionDetection(text);
           }
         }, index * 1000); // 1 second delay between messages
       });
