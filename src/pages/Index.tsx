@@ -497,11 +497,25 @@ const Index = () => {
             {showBootcampButton && (
               <div className="flex justify-center my-3 sm:my-4 px-2">
                 <Button 
-                  onClick={() => window.open(bootcampButtonUrl, '_blank')}
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: 'No-Code AI Bootcamp in Barcelona',
+                        text: 'Check out this amazing 6-week in-person bootcamp in Barcelona!',
+                        url: bootcampButtonUrl
+                      });
+                    } else {
+                      // Fallback for browsers that don't support Web Share API
+                      const shareText = `Check out this amazing 6-week in-person bootcamp in Barcelona! ${bootcampButtonUrl}`;
+                      navigator.clipboard.writeText(shareText).then(() => {
+                        alert('Link copied to clipboard!');
+                      });
+                    }
+                  }}
                   variant="hero"
                   className="w-full max-w-xs sm:w-auto text-sm sm:text-base py-3 sm:py-2"
                 >
-                  Visit Bootcamp Page
+                  Share Bootcamp
                 </Button>
               </div>
             )}
