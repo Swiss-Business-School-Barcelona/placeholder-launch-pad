@@ -514,7 +514,7 @@ const Index = () => {
                 </div>
                 <div className="relative">
                   <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
-                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "All the days"].map((option) => (
+                    {["All the days", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((option) => (
                       <div key={option} className="flex items-center space-x-3 py-1">
                         <Checkbox
                           id={option}
