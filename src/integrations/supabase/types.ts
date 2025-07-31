@@ -16,51 +16,39 @@ export type Database = {
     Tables: {
       bootcamp_applications: {
         Row: {
-          about: string | null
-          age: string | null
-          ai_experience: string | null
-          app_experience: string | null
+          available_days: string | null
           created_at: string
           email: string | null
-          goal: string | null
           id: string
           linkedin: string | null
           motivation: string | null
+          name: string | null
+          phone: string | null
           preferred_time: string | null
-          referral_source: string | null
-          unavailable_days: string | null
           updated_at: string
         }
         Insert: {
-          about?: string | null
-          age?: string | null
-          ai_experience?: string | null
-          app_experience?: string | null
+          available_days?: string | null
           created_at?: string
           email?: string | null
-          goal?: string | null
           id?: string
           linkedin?: string | null
           motivation?: string | null
+          name?: string | null
+          phone?: string | null
           preferred_time?: string | null
-          referral_source?: string | null
-          unavailable_days?: string | null
           updated_at?: string
         }
         Update: {
-          about?: string | null
-          age?: string | null
-          ai_experience?: string | null
-          app_experience?: string | null
+          available_days?: string | null
           created_at?: string
           email?: string | null
-          goal?: string | null
           id?: string
           linkedin?: string | null
           motivation?: string | null
+          name?: string | null
+          phone?: string | null
           preferred_time?: string | null
-          referral_source?: string | null
-          unavailable_days?: string | null
           updated_at?: string
         }
         Relationships: []
