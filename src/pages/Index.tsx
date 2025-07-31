@@ -36,6 +36,7 @@ const Index = () => {
   const [selectedDayOptions, setSelectedDayOptions] = useState<string[]>([]);
   const [qaData, setQaData] = useState<Partial<QAData>>({});
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
+  const [applicationId, setApplicationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -79,16 +80,37 @@ const Index = () => {
     initializeConversation();
   }, []);
 
-  const storeApplicationData = async (dataToStore: Partial<QAData>) => {
+  const storeOrUpdateApplicationData = async (dataToStore: Partial<QAData>) => {
     try {
-      const { error } = await supabase.from('bootcamp_applications').insert([dataToStore]);
-      if (error) {
-        console.error('Error storing application data:', error);
+      if (applicationId) {
+        // Update existing application
+        const { error } = await supabase
+          .from('bootcamp_applications')
+          .update(dataToStore)
+          .eq('id', applicationId);
+        
+        if (error) {
+          console.error('Error updating application data:', error);
+        } else {
+          console.log('Application data updated successfully');
+        }
       } else {
-        console.log('Application data stored successfully');
+        // Insert new application
+        const { data, error } = await supabase
+          .from('bootcamp_applications')
+          .insert([dataToStore])
+          .select('id')
+          .single();
+        
+        if (error) {
+          console.error('Error storing application data:', error);
+        } else {
+          console.log('Application data stored successfully');
+          setApplicationId(data.id);
+        }
       }
     } catch (error) {
-      console.error('Error storing application:', error);
+      console.error('Error storing/updating application:', error);
     }
   };
 
@@ -281,7 +303,9 @@ const Index = () => {
     const timeResponse = selectedTimeOptions.join(", ");
     
     // Store the preferred time data
-    setQaData(prev => ({ ...prev, preferred_time: timeResponse }));
+    const newData = { preferred_time: timeResponse };
+    setQaData(prev => ({ ...prev, ...newData }));
+    storeOrUpdateApplicationData(newData);
     
     // Add user response
     addMessage(timeResponse, false);
@@ -323,7 +347,9 @@ const Index = () => {
     const dayResponse = selectedDayOptions.join(", ");
     
     // Store the available days data
-    setQaData(prev => ({ ...prev, available_days: dayResponse }));
+    const newData = { available_days: dayResponse };
+    setQaData(prev => ({ ...prev, ...newData }));
+    storeOrUpdateApplicationData(newData);
     
     // Add user response
     addMessage(dayResponse, false);
@@ -373,11 +399,17 @@ const Index = () => {
     // Store the answer based on current question
     const answer = userInput.trim();
     if (currentQuestion === "name") {
-      setQaData(prev => ({ ...prev, name: answer }));
+      const newData = { name: answer };
+      setQaData(prev => ({ ...prev, ...newData }));
+      storeOrUpdateApplicationData(newData);
     } else if (currentQuestion === "linkedin") {
-      setQaData(prev => ({ ...prev, linkedin: answer }));
+      const newData = { linkedin: answer };
+      setQaData(prev => ({ ...prev, ...newData }));
+      storeOrUpdateApplicationData(newData);
     } else if (currentQuestion === "motivation") {
-      setQaData(prev => ({ ...prev, motivation: answer }));
+      const newData = { motivation: answer };
+      setQaData(prev => ({ ...prev, ...newData }));
+      storeOrUpdateApplicationData(newData);
     } else if (currentQuestion === "contact") {
       // Parse email or phone from the contact response
       const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
@@ -386,11 +418,12 @@ const Index = () => {
       const emailMatch = answer.match(emailRegex);
       const phoneMatch = answer.match(phoneRegex);
       
-      setQaData(prev => ({ 
-        ...prev, 
+      const newData = { 
         email: emailMatch ? emailMatch[0] : "",
         phone: phoneMatch ? phoneMatch[0] : answer.includes("@") ? "" : answer
-      }));
+      };
+      setQaData(prev => ({ ...prev, ...newData }));
+      storeOrUpdateApplicationData(newData);
     }
 
     // Add user response
@@ -421,18 +454,6 @@ const Index = () => {
       setIsTyping(false);
       addMessage(data.message, true, data.showButton, data.buttonUrl);
       
-      // Store data when conversation is complete (when button appears)
-      if (data.showButton) {
-        setTimeout(() => {
-          setQaData(currentData => {
-            console.log('Final data to store:', currentData);
-            if (currentData.name && (currentData.email || currentData.phone)) {
-              storeApplicationData(currentData);
-            }
-            return currentData;
-          });
-        }, 100);
-      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       setIsTyping(false);
